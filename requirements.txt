@@ -1,0 +1,7 @@
+corner
+matplotlib
+numpy
+pandas
+tqdm
+
+cinemas  # yay!
