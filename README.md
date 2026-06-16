@@ -30,3 +30,10 @@ To avoid bloating this repo, the results folder are available on zenodo at ...[T
 The `scripts/search_for_hd2151512f.py` uses `cinemas` to constrain the properties of a hypothetical planet, HD 215152 $\~{\rm f}$, located in a dynamically tight region between planets d and e of that system.
 
 The results of this scan are saved to `results/search_hd215152f/hd215152f.npz`. Again, these are available on zenodo at ...[TODO!]
+
+
+## Analysis
+
+The figures and tables are generated from the results file by `scripts/plot_figures.py` and `scripts/tabulate_tables.py`, which call scripts in the `scripts/figs` and `scripts/tables` folders. The figures rely on some tabulated data, so run `tabulate_tables.py` before `plot_figures.py`.
+
+The figures and tables are saved to `tex/figs` and `tex/tables`.
