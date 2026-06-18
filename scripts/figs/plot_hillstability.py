@@ -27,44 +27,37 @@ SYSTEMS = [
 
 DELTA_CRIT = 10
 
-MASSES95_PATH = ROOT_DIR / "tex" / "tables" / "masses95.csv"
 EXOPLANET_CATALOGUE_PATH = ROOT_DIR / "data" / "exoplanet_catalogue.csv"
 
-COLOURS = {"b": "r", "c": "g", "d": "b", "e": "m", "f": "c"}
-SUBPLOT_MOSAIC = [
-    ["HD 158259"] * 2,
-    ["HD 215152"] * 2,
-    ["Barnard's star", "HD 184010"],
-    ["HD 28471", "YZ Cet"],
-]
+RESULTS_PATH = ROOT_DIR / "results" / "mcmc_results"
+BURN = 2000
 
 
-def critical_m2(m1, P1, P2, m_star, Delta_crit=10):
+def Delta_factor(a1, a2, M1min, M2min, Mstar):
     """
-    Calculate the critical mass for Hill stability.
-    Masses should be in kg, and periods in days.
+    Calculate the Hill stability coefficient (for sin(i)^(-1/3) )
     """
-    a1 = (P1 / 365.25) ** (2 / 3) * (m_star / M_SUN) ** (1 / 3)  # AU
-    a2 = (P2 / 365.25) ** (2 / 3) * (m_star / M_SUN) ** (1 / 3)  # AU
-
-    max_m1_plus_m2 = 3 * m_star * ((2 / Delta_crit) * ((a2 - a1) / (a1 + a2))) ** 3
-    return max_m1_plus_m2 - m1
+    return 2 * ((a2 - a1) / (a1 + a2)) * (3 * Mstar / (M1min + M2min)) ** (1 / 3)
 
 
-def get_critical_masses(m1, P1, m_star, Delta_crit=10):
+def collect_inclinations_5pc():
     """
-    Return values of P and corresponding values of critical_m2
+    Collects the 5% inclination limits of all systems from the CINEMAS runs.
     """
+    inclinations_5pc = {}
+    for system in SYSTEMS:
+        posterior_file = RESULTS_PATH / f"{system.lower().replace(' ', '_')}.npz"
+        if not posterior_file.exists():
+            print(f"No posterior found for {system}, skipping...")
+            inclinations_5pc[system] = np.nan
+            continue
+        posterior_samples = np.load(posterior_file)["samples"]
+        inclination_samples = np.degrees(
+            np.arccos(posterior_samples[BURN:, :, 0].flatten())
+        )
+        inclinations_5pc[system] = np.percentile(inclination_samples, 5).item()
 
-    P_low = np.linspace(P1 * 0.1, P1, 100)
-    P_high = np.linspace(P1, 5 * P1, 100)
-    critical_m2_low = critical_m2(m1, P_low, P1, m_star, Delta_crit)
-    critical_m2_high = critical_m2(m1, P1, P_high, m_star, Delta_crit)
-
-    P_values = np.concatenate([P_low, P_high])
-    critical_m2_values = np.concatenate([critical_m2_low, critical_m2_high])
-
-    return P_values, critical_m2_values
+    return inclinations_5pc
 
 
 def main():
@@ -81,66 +74,76 @@ def main():
         exoplanet_catalogue["hostname"].isin(SYSTEMS)
     ].sort_values(["hostname", "pl_orbper"])
 
-    masses95_df = pd.read_csv(MASSES95_PATH)
+    inclinations_5pc = collect_inclinations_5pc()
 
     # Plotting
-    print(  "Plotting...")
+    print("  Plotting...")
 
-    fg, axs = plt.subplot_mosaic(
-        SUBPLOT_MOSAIC, figsize=(7, 9), gridspec_kw={"wspace": 0.2, "hspace": 0.4}
+    fg, axs = plt.subplots(
+        3, 2, figsize=(6, 7), gridspec_kw={"hspace": 0.0, "wspace": 0.0}
     )
 
-    for system in SYSTEMS:
-        ax = axs[system]
+    i_deg = np.linspace(0, 90, 1000)
+    sini_1_3 = np.sin(np.radians(i_deg)) ** (1 / 3)
+
+    for i, system in enumerate(SYSTEMS):
+        ax = axs.flatten()[i]
         system_data = planets_data[planets_data["hostname"] == system]
 
-        m_star = system_data["st_mass"].values[0]
-        m_min = system_data["pl_msinie"].values
+        m_star = system_data["st_mass"].values[0] * M_SUN
+        m_min = system_data["pl_msinie"].values * M_EARTH
+
         p_day = system_data["pl_orbper"].values
+        a_au = (p_day / 365.25) ** (2 / 3) * (m_star / M_SUN) ** (1 / 3)
 
-        mass95_data = masses95_df[masses95_df["hostname"] == system]
-        posterior_masses95 = mass95_data["posterior_95"].values
+        for (a1, a2), (m1, m2) in zip(
+            zip(a_au[:-1], a_au[1:]), zip(m_min[:-1], m_min[1:])
+        ):
+            Delta = Delta_factor(a1, a2, m1, m2, m_star)
+            ax.plot(i_deg, Delta * sini_1_3, color="k", lw=1.5)
 
-        roof = 1.3 * max(posterior_masses95)
+        ax.set_xlim(0, 90)
+        ax.set_xticks([0, 30, 60, 90])
+        ax.set_xticklabels([])
+        ax.set_ylim(0, 27)
+        ax.set_yticks([0, 10, 20])
 
-        for i in range(len(system_data)):
-            m1 = m_min[i]
-            m_max = posterior_masses95[i]
-            P1 = p_day[i]
+        # ax.axhline(10, color="k", ls="--", lw=1.5)
+        ax.fill_between(i_deg, 0, 10, color="r", alpha=0.3)
 
-            planet_name = system_data["pl_name"].values[i][-1:]  # Just letter
-            colour = COLOURS.get(planet_name, "k")
+        inclination_limit = inclinations_5pc[system]
+        ax.vlines(inclination_limit, 0, 27, color="k", ls="--", lw=1.5, alpha=0.5)
 
-            P_values, critical_m2_values = get_critical_masses(
-                m_max * M_EARTH, P1, m_star * M_SUN, DELTA_CRIT
-            )
+        title = system if system != "Barnard's star" else "Barnard"
+        ax.set_title(title, fontsize=15, loc="right", x=0.97, y=0.78)
 
-            ax.scatter(P1, m1, color=colour, marker="^", alpha=0.6)
-            ax.scatter(P1, m_max, color=colour, marker="v")
+    axs[-1, 0].set_xticks([0, 30, 60, 90], labels=["0", "30", "60", ""], fontsize=14)
+    axs[-1, 1].set_xticks([0, 30, 60, 90], labels=["0", "30", "60", "90"], fontsize=14)
+    for ax in axs[:, 1]:
+        ax.set_yticklabels([])
 
-            ax.fill_between(
-                P_values, critical_m2_values / M_EARTH, roof, color=colour, alpha=0.3
-            )
+    for ax in axs.flatten():
+        ax.tick_params(
+            length=5, labelsize=13, width=1.5, direction="in", top=True, right=True
+        )
+        for spine in ax.spines.values():
+            spine.set_linewidth(1.5)
 
-        ax.set_xlim(0.8 * min(p_day), 1.2 * max(p_day))
-        ax.set_ylim(0, roof)
+    # Label CINEMAS limits
+    ax = axs[0, 0]
+    ax.annotate(
+        "CINEMAS", xy=(27, 19.5), va="center", fontsize=12, rotation=90, alpha=0.7
+    )
+    for y in [17, 19]:
+        # Short rightwards arrow, from x=lower limit for HD 158259
+        ax.arrow(
+            inclinations_5pc["HD 158259"], y, 5, 0, head_width=0.8, head_length=1.4
+        )
 
-        ax.tick_params(length=5, labelsize=11, width=1, direction="in")
+    fg.supxlabel("$i$ [deg]", fontsize=16, y=0.02)
+    fg.supylabel("$\\Delta$", fontsize=18, x=0.01)
 
-        title = system if system != "Barnard's star" else "Barnard's Star"
-        ax.set_title(title, fontsize=14, loc="left")
-
-    ax = axs["HD 158259"]
-    ax.annotate("─ 95% limit", (12.5, 10.8), fontsize=13)
-    ax.annotate("─ $M_{\\rm min}$", (12.5, 5.4), fontsize=13)
-    ax.set_xlim(1.5, 18)
-    ax.annotate("$\\Delta = 10$", (16.5, 2), rotation=61, fontsize=12, color="#007777")
-
-    fg.supxlabel("Period [d]", fontsize=16, y=0.04)
-    fg.supylabel("Mass [M$_{\\oplus}$]", fontsize=16, x=0.01)
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    fg.savefig(output_path, bbox_inches="tight", dpi=300)
+    fg.savefig(output_path, dpi=300, bbox_inches="tight")
 
 
 if __name__ == "__main__":
