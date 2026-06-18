@@ -75,6 +75,7 @@ def main():
     ].sort_values(["hostname", "pl_orbper"])
 
     inclinations_5pc = collect_inclinations_5pc()
+    PRIOR_5PC = np.degrees(np.arccos(0.95))
 
     # Plotting
     print("  Plotting...")
@@ -112,7 +113,8 @@ def main():
         ax.fill_between(i_deg, 0, 10, color="r", alpha=0.3)
 
         inclination_limit = inclinations_5pc[system]
-        ax.vlines(inclination_limit, 0, 27, color="k", ls="--", lw=1.5, alpha=0.5)
+        ax.vlines(inclination_limit, 0, 27, color="k", lw=1.5, alpha=0.5)
+        ax.vlines(PRIOR_5PC, 0, 27, color="k", ls="--", lw=1.5, alpha=0.5)
 
         title = system if system != "Barnard's star" else "Barnard"
         ax.set_title(title, fontsize=15, loc="right", x=0.97, y=0.78)
@@ -132,7 +134,10 @@ def main():
     # Label CINEMAS limits
     ax = axs[0, 0]
     ax.annotate(
-        "CINEMAS", xy=(27, 19.5), va="center", fontsize=12, rotation=90, alpha=0.7
+        "Posterior", xy=(27, 19.5), va="center", fontsize=12, rotation=90, alpha=0.7
+    )
+    ax.annotate(
+        "Prior", xy=(11, 19.5), va="center", fontsize=12, rotation=90, alpha=0.7
     )
     for y in [17, 19]:
         # Short rightwards arrow, from x=lower limit for HD 158259
