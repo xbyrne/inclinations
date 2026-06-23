@@ -86,8 +86,8 @@ def main() -> None:
         3, 1, figsize=(6, 5), sharex=True, gridspec_kw={"hspace": 0.0}
     )
     for i, (p, ax, c) in enumerate(zip(["b", "c", "d"], axs, ["r", "g", "b"])):
-        ax.plot(x, true_mass_priors[i], c=c, ls="--")
-        ax.axvline(true_mass_prior_95[i], color=c, ls="--")
+        ax.plot(x, true_mass_priors[i], c=c, ls=":", lw=2)
+        ax.axvline(true_mass_prior_95[i], color=c, ls=":", lw=2)
 
         ax.hist(true_mass_samples[:, i], bins=bins, color=c, density=True, alpha=0.5)
         ax.axvline(true_mass_95[i], color=c)
@@ -119,7 +119,7 @@ def main() -> None:
     )
 
     handles = [
-        plt.Line2D([0], [0], color="k", ls="--"),
+        plt.Line2D([0], [0], color="k", ls=":", lw=2),
         plt.Rectangle((0, 0), 1, 1, color="k", alpha=0.5, lw=0),
     ]
     labels = ["Prior", "Posterior"]
