@@ -14,6 +14,15 @@ from cinemas import dataloading
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 
+SYSTEMS = [
+    "HD 158259",
+    "HD 215152",
+    "Barnard's star",
+    "HD 184010",
+    "HD 28471",
+    "YZ Cet",
+]
+
 
 def main() -> None:
     if len(sys.argv) > 1:
@@ -25,25 +34,18 @@ def main() -> None:
     # ==============
     # Gathering data
 
-    # Load catalogue and select systems
+    # Load catalogue
     catalogue = pd.read_csv(ROOT_DIR / "data" / "exoplanet_catalogue.csv")
     compact_multiplanet_rv_systems = dataloading.select_compact_multiplanet_rv_systems(
         catalogue
     )
     compact_multiplanet_rv_systems.sort_values(by="hostname", inplace=True)
-    system_list = (
-        compact_multiplanet_rv_systems.groupby("hostname")
-        .size()
-        .sort_values(ascending=False)
-        .index.tolist()
-    )
-    system_list = [s for s in system_list if s != "DMPP-1"]
 
     # Collect inclination samples
     results_path = ROOT_DIR / "results" / "mcmc_results"
     inclination_samples = {}
     burn_in = 2000
-    for system in system_list:
+    for system in SYSTEMS:
         posterior_file = results_path / f"{system.lower().replace(' ', '_')}.npz"
         if not posterior_file.exists():
             print(f"No posterior found for {system}, skipping...")
@@ -60,7 +62,7 @@ def main() -> None:
         3, 2, figsize=(6, 7), gridspec_kw={"hspace": 0.0, "wspace": 0.0}
     )
     x = np.linspace(0, 90, 100)
-    for system, ax in zip(system_list, axs.flatten()):
+    for system, ax in zip(SYSTEMS, axs.flatten()):
         display_name = system if system != "Barnard's star" else "Barnard's Star"
         ax.set_title(
             display_name, x=0.055, y=0.78, fontsize=15, horizontalalignment="left"

@@ -107,9 +107,12 @@ def build_mass_limits_df(
     true_mass_prior_95s: dict[str, float],
     true_mass_posterior_95s: dict[str, float],
 ) -> pd.DataFrame:
-    df = catalogue[catalogue["hostname"].isin(systems)].sort_values(
-        ["sy_pnum", "hostname", "pl_orbper"], ascending=[False, True, True]
-    )
+    df = catalogue[catalogue["hostname"].isin(systems)]
+    # Sort by systems
+    df["hostname"] = pd.Categorical(df["hostname"], categories=systems, ordered=True)
+    df.sort_values(by=["hostname", "pl_orbper"], inplace=True)
+    # Convert the Categorical back to a string type for the DataFrame
+    df["hostname"] = df["hostname"].astype(str)
 
     m95_df = pd.DataFrame(
         columns=[
@@ -192,10 +195,10 @@ def main() -> None:
     )
 
     catalogue = load_catalogue()
-    systems = [
+    SYSTEMS = [
         "HD 158259",
-        "Barnard's star",
         "HD 215152",
+        "Barnard's star",
         "HD 184010",
         "HD 28471",
         "YZ Cet",
@@ -203,11 +206,11 @@ def main() -> None:
     results_dir = ROOT_DIR / "results" / "mcmc_results"
 
     true_mass_prior_95s, true_mass_posterior_95s = collect_mass_limit_maps(
-        catalogue, systems, results_dir, burn_in=2000
+        catalogue, SYSTEMS, results_dir, burn_in=2000
     )
 
     m95_df = build_mass_limits_df(
-        catalogue, systems, true_mass_prior_95s, true_mass_posterior_95s
+        catalogue, SYSTEMS, true_mass_prior_95s, true_mass_posterior_95s
     )
     m95_df.to_csv(ROOT_DIR / "tex" / "tables" / "masses95.csv", index=False)
 

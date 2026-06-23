@@ -12,6 +12,15 @@ from cinemas.dataloading import select_compact_multiplanet_rv_systems
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 
+SYSTEMS = [
+    "HD 158259",
+    "HD 215152",
+    "Barnard's star",
+    "HD 184010",
+    "HD 28471",
+    "YZ Cet",
+]
+
 
 def load_catalogue() -> pd.DataFrame:
     return pd.read_csv(ROOT_DIR / "data" / "exoplanet_catalogue.csv")
@@ -24,11 +33,12 @@ def filter_refuted_planets(catalogue: pd.DataFrame) -> pd.DataFrame:
 
 def build_system_summary_df(catalogue: pd.DataFrame) -> pd.DataFrame:
     compact_systems = select_compact_multiplanet_rv_systems(catalogue)
-    compact_systems.sort_values(
-        by=["sy_pnum", "hostname", "pl_orbper"],
-        inplace=True,
-        ascending=[False, True, True],
+    compact_systems["hostname"] = pd.Categorical(
+        compact_systems["hostname"], categories=SYSTEMS, ordered=True
     )
+    compact_systems.sort_values(by=["hostname", "pl_orbper"], inplace=True)
+    # Convert the Categorical back to a string type for the DataFrame
+    compact_systems["hostname"] = compact_systems["hostname"].astype(str)
 
     systems_df = pd.DataFrame(
         columns=["star_name", "star_mass", "planet_name", "period", "mmin"]

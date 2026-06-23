@@ -18,8 +18,8 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 
 SYSTEMS = [
     "HD 158259",
-    "Barnard's star",
     "HD 215152",
+    "Barnard's star",
     "HD 184010",
     "HD 28471",
     "YZ Cet",
