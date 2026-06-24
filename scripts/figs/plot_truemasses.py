@@ -39,6 +39,8 @@ def main() -> None:
         print("Usage: python plot_truemasses.py <figure_path>")
         sys.exit(1)
 
+    HIST_ALPHA = 0.42
+
     # ==============
     # Gathering data
     results_dir = ROOT_DIR / "results" / "mcmc_results"
@@ -89,7 +91,9 @@ def main() -> None:
         ax.plot(x, true_mass_priors[i], c=c, ls=":", lw=2)
         ax.axvline(true_mass_prior_95[i], color=c, ls=":", lw=2)
 
-        ax.hist(true_mass_samples[:, i], bins=bins, color=c, density=True, alpha=0.5)
+        ax.hist(
+            true_mass_samples[:, i], bins=bins, color=c, density=True, alpha=HIST_ALPHA
+        )
         ax.axvline(true_mass_95[i], color=c)
 
         ax.set_xlim(bins[0], bins[-1])
@@ -120,7 +124,7 @@ def main() -> None:
 
     handles = [
         plt.Line2D([0], [0], color="k", ls=":", lw=2),
-        plt.Rectangle((0, 0), 1, 1, color="k", alpha=0.5, lw=0),
+        plt.Rectangle((0, 0), 1, 1, color="k", alpha=HIST_ALPHA, lw=0),
     ]
     labels = ["Prior", "Posterior"]
     ax.legend(handles, labels, loc="center right", fontsize=12)
