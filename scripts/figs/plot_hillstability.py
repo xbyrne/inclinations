@@ -75,7 +75,6 @@ def main():
     ].sort_values(["hostname", "pl_orbper"])
 
     inclinations_5pc = collect_inclinations_5pc()
-    PRIOR_5PC = np.degrees(np.arccos(0.95))
 
     # Plotting
     print("  Plotting...")
@@ -133,12 +132,8 @@ def main():
         ax.fill_between(i_deg, 0, 10, color="r", alpha=0.2)
 
         inclination_limit = inclinations_5pc[system]
-        ax.vlines(
-            PRIOR_5PC, 8, 12, color="k", ls=":", lw=1.5, alpha=0.5, label="5% prior"
-        )
-        ax.vlines(
-            inclination_limit, 8, 12, color="k", lw=1.5, alpha=0.5, label="5% post."
-        )
+        if "158259" not in system:
+            ax.vlines(inclination_limit, 8, 12, color="k", lw=1.5, alpha=0.5)
 
         ax.set_title(title, fontsize=15, ha="left", va="top", x=0.06, y=0.87)
 
@@ -154,24 +149,21 @@ def main():
         for spine in ax.spines.values():
             spine.set_linewidth(1.5)
 
-    # Label CINEMAS limits
-    axs[-1, -1].legend(
-        loc=[0.47, 0.5],
-        fontsize=10,
-        frameon=False,
-        handlelength=1.5,
-        handletextpad=0.5,
-    )
-
     # Label Chambers+96 limit
-    axs[0, 0].annotate(
-        "$\\Delta < 10$",
-        (55, 4.8),
-        fontsize=14,
-        va="center",
-        ha="center",
-        color="r",
-        alpha=0.7,
+    ax = axs[0, 0]
+    ax.annotate("$\\Delta < 10$", (50, 3.2), fontsize=14, color="r", alpha=0.7)
+
+    # Label posterior (on HD 158259)
+    ax.vlines(inclinations_5pc["HD 158259"], 8, 15, color="k", lw=1.5, alpha=0.5)
+    ax.annotate(
+        "5% posterior", (37, 13.2), fontsize=10, ha="left", color="k", alpha=0.7
+    )
+    # Label prior on HD 28471
+    axs[-1, 0].vlines(
+        np.degrees(np.arccos(0.95)), 4.7, 12, color="k", ls=":", lw=1.5, alpha=0.5
+    )
+    axs[-1, 0].annotate(
+        "5%\nprior", (17., 2.5), fontsize=10, ha="right", color="k", alpha=0.7
     )
 
     fg.supxlabel("$i$ [deg]", fontsize=16, y=0.02)
