@@ -45,20 +45,19 @@ def main() -> None:
     # ========
     # Plotting
     fg, axs = plt.subplots(
-        3, 3, figsize=(11, 7), gridspec_kw={"wspace": 0.05, "hspace": 0.0}
+        3, 3, figsize=(11, 6), gridspec_kw={"wspace": 0.05, "hspace": 0.0}
     )
-    xlabelsize = 16
+    xlabelsize = 18
 
     # Inclination panel
     ax = axs[0, 0]
     cos_i_samples = samples[burn_in:, :, 0].flatten()
     inclination_samples = np.degrees(np.arccos(cos_i_samples))
-    ax.hist(
-        inclination_samples, bins=30, color="k", density=True, alpha=0.5
-    )
+    ax.hist(inclination_samples, bins=30, color="k", density=True, alpha=0.5)
     x = np.linspace(0, 90, 100)
     ax.plot(x, np.sin(np.radians(x)) * np.pi / 180, c="k", lw=2)
     ax.set_xlim(x[0], x[-1])
+    ax.set_xticks([0, 30, 60, 90])
     ax.set_xlabel("$i$ [deg]", fontsize=xlabelsize)
     ax.set_yticks([])
 
@@ -97,7 +96,7 @@ def main() -> None:
         if i < 2:
             ax.set_xticklabels([])
         ax.set_title(
-            planets[i], y=0.75, x=0.05, horizontalalignment="left", fontsize=23
+            planets[i], y=0.71, x=0.05, horizontalalignment="left", fontsize=23
         )
     ax.set_xlabel("$M_{\\rm min}$ [M$_{\\oplus}$]", fontsize=xlabelsize)
 
@@ -119,10 +118,11 @@ def main() -> None:
         if i < 2:
             ax.set_xticklabels([])
     ax.set_xlabel("$e$", fontsize=xlabelsize)
+    ax.set_xticks([0.0, 0.1, 0.2])
 
     # Neatening
     for ax in axs.flatten():
-        ax.tick_params(length=6, labelsize=12, width=1.5, direction="in", top=True)
+        ax.tick_params(length=6, labelsize=14, width=1.5, direction="in", top=True)
         ax.set_yticks([])
         for spine in ax.spines.values():
             spine.set_linewidth(1.5)
