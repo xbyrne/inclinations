@@ -80,7 +80,7 @@ def main():
     print("  Plotting...")
 
     fg, axs = plt.subplots(
-        3, 2, figsize=(5, 6), gridspec_kw={"hspace": 0.0, "wspace": 0.0}
+        3, 2, figsize=(3.3, 4), gridspec_kw={"hspace": 0.0, "wspace": 0.0}
     )
 
     i_deg = np.linspace(0, 90, 1000)
@@ -121,52 +121,54 @@ def main():
         )
         title = TITLE_DICT[system] + "\n" + f"$\\Delta_{{\\rm {closest_planets}}}$"
 
-        ax.plot(i_deg, delta_min * sini_1_3, color="k", lw=1.5)
+        ax.plot(i_deg, delta_min * sini_1_3, color="k", lw=1)
 
         ax.set_xlim(0, 90)
         ax.set_xticks([0, 30, 60, 90])
+        ax.set_xticks([10, 20, 40, 50, 70, 80], minor=True)
         ax.set_xticklabels([])
         ax.set_ylim(0, Y_MAX)
         ax.set_yticks([0, 10, 20])
+        ax.set_yticks([5, 15], minor=True)
 
         ax.fill_between(i_deg, 0, 10, color="r", alpha=0.2)
 
         inclination_limit = inclinations_5pc[system]
         if "158259" not in system:
-            ax.vlines(inclination_limit, 8, 12, color="k", lw=1.5, alpha=0.5)
+            ax.vlines(inclination_limit, 8, 12, color="k", lw=1, alpha=0.5)
 
-        ax.set_title(title, fontsize=15, ha="left", va="top", x=0.06, y=0.87)
+        ax.set_title(title, fontsize=9, ha="left", va="top", x=0.06, y=0.84)
 
-    axs[-1, 0].set_xticks([0, 30, 60, 90], labels=["0", "30", "60", ""], fontsize=14)
-    axs[-1, 1].set_xticks([0, 30, 60, 90], labels=["0", "30", "60", "90"], fontsize=14)
+    axs[-1, 0].set_xticks([0, 30, 60, 90], labels=["0", "30", "60", ""], fontsize=8)
+    axs[-1, 1].set_xticks([0, 30, 60, 90], labels=["0", "30", "60", "90"], fontsize=8)
     for ax in axs[:, 1]:
         ax.set_yticklabels([])
 
     for ax in axs.flatten():
         ax.tick_params(
-            length=3, labelsize=13, width=1.5, direction="in", top=True, right=True
+            labelsize=8, direction="in", top=True, right=True, which="both"
         )
-        for spine in ax.spines.values():
-            spine.set_linewidth(1.5)
+        ax.tick_params(length=3, which="major")
+        ax.tick_params(length=1.5, which="minor")
 
     # Label Chambers+96 limit
     ax = axs[0, 0]
-    ax.annotate("$\\Delta < 10$", (50, 3.2), fontsize=14, color="r", alpha=0.7)
+    ax.annotate(
+        "$\\Delta < 10$", (50, 5), fontsize=9, color="r", alpha=0.7, va="center"
+    )
 
     # Label posterior (on HD 158259)
-    ax.vlines(inclinations_5pc["HD 158259"], 8, 15, color="k", lw=1.5, alpha=0.5)
-    ax.annotate(
-        "5% posterior", (37, 13.2), fontsize=10, ha="left", color="k", alpha=0.7
-    )
+    ax.vlines(inclinations_5pc["HD 158259"], 8, 15, color="k", lw=1, alpha=0.5)
+    ax.annotate("5% posterior", (37, 14), fontsize=8, ha="left", color="k", alpha=0.7)
     # Label prior on HD 28471
     axs[-1, 0].vlines(
-        np.degrees(np.arccos(0.95)), 4.7, 12, color="k", ls=":", lw=1.5, alpha=0.5
+        np.degrees(np.arccos(0.95)), 4.7, 12, color="k", ls=":", lw=1.0, alpha=0.5
     )
     axs[-1, 0].annotate(
-        "5%\nprior", (17., 2.5), fontsize=10, ha="right", color="k", alpha=0.7
+        "5% prior", (21.0, 4), fontsize=8, ha="left", color="k", alpha=0.7
     )
 
-    fg.supxlabel("$i$ [deg]", fontsize=16, y=0.02)
+    fg.supxlabel("$i$ [deg]", fontsize=11, y=0.02)
 
     fg.savefig(output_path, dpi=300, bbox_inches="tight")
 

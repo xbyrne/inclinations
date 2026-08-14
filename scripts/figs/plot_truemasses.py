@@ -85,11 +85,11 @@ def main() -> None:
     # ========
     # Plotting
     fg, axs = plt.subplots(
-        3, 1, figsize=(6, 5), sharex=True, gridspec_kw={"hspace": 0.0}
+        3, 1, figsize=(3.3, 3.8), sharex=True, gridspec_kw={"hspace": 0.0}
     )
     for i, (p, ax, c) in enumerate(zip(["b", "c", "d"], axs, ["r", "g", "b"])):
-        ax.plot(x, true_mass_priors[i], c=c, ls=":", lw=2)
-        ax.axvline(true_mass_prior_95[i], color=c, ls=":", lw=2)
+        ax.plot(x, true_mass_priors[i], c=c, ls=":")
+        ax.axvline(true_mass_prior_95[i], color=c, ls=":")
 
         ax.hist(
             true_mass_samples[:, i], bins=bins, color=c, density=True, alpha=HIST_ALPHA
@@ -97,39 +97,43 @@ def main() -> None:
         ax.axvline(true_mass_95[i], color=c)
 
         ax.set_xlim(bins[0], bins[-1])
+        ax.set_xticks([1.0, 2.0, 3.0])
+        ax.set_xticks([0.5, 1.5, 2.5, 3.5], minor=True)
         ax.set_yticks([])
-        ax.tick_params(length=6, direction="in", top=True, labelsize=12, width=1.5)
-        ax.set_title(p, y=0.7, x=0.03, horizontalalignment="left", fontsize=16)
+        ax.tick_params(direction="in", top=True, labelsize=8, width=1, which="both")
+        ax.tick_params(length=4, which="major")
+        ax.tick_params(length=2.5, which="minor")
+        ax.set_title(p, y=0.7, x=0.03, horizontalalignment="left", fontsize=11)
         for spine in ax.spines.values():
-            spine.set_linewidth(1.5)
+            spine.set_linewidth(1)
 
     # Labelling and legend
     ax = axs[0]
     ax.annotate(
         "95% post.",
-        xy=(true_mass_95[0] - 0.15, 1.7),
-        fontsize=12,
+        xy=(true_mass_95[0] - 0.17, 1.7),
+        fontsize=8,
         c="r",
         rotation=90,
         va="center",
     )
     ax.annotate(
         "95% prior",
-        xy=(true_mass_prior_95[0] - 0.15, 1.7),
-        fontsize=12,
+        xy=(true_mass_prior_95[0] - 0.17, 1.7),
+        fontsize=8,
         c="r",
         rotation=90,
         va="center",
     )
 
     handles = [
-        plt.Line2D([0], [0], color="k", ls=":", lw=2),
+        plt.Line2D([0], [0], color="k", ls=":", lw=1.4),
         plt.Rectangle((0, 0), 1, 1, color="k", alpha=HIST_ALPHA, lw=0),
     ]
     labels = ["Prior", "Posterior"]
-    ax.legend(handles, labels, loc="center right", fontsize=12)
+    ax.legend(handles, labels, loc="center right", fontsize=8)
 
-    axs[-1].set_xlabel("True Mass [M$_{{\\oplus}}$]", fontsize=16)
+    axs[-1].set_xlabel("True Mass [M$_{{\\oplus}}$]", fontsize=9)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fg.savefig(output_path, bbox_inches="tight", dpi=300)

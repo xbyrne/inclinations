@@ -25,13 +25,10 @@ SYSTEMS = [
 ]
 
 MOSAIC = [
-    # ["Example"] * 2 + ["HD 158259"] * 4,
-    ["HD 158259"] * 4 + ["Example"] * 2,
-    # ["HD 158259"] * 6,
-    ["HD 215152"] * 6,
-    ["Barnard's star"] * 3 + ["HD 184010"] * 3,
-    # ["HD 184010"] * 3 + ["Barnard's star"] * 3,
-    ["HD 28471"] * 3 + ["YZ Cet"] * 3,
+    ["HD 158259"] * 2,
+    ["HD 215152"] * 2,
+    ["Barnard's star", "HD 184010"],
+    ["HD 28471", "YZ Cet"],
 ]
 
 COLOURS = {"b": "r", "c": "g", "d": "b", "e": "m", "f": "c"}
@@ -133,25 +130,6 @@ def make_violin(samples, planet_obs, side, ax, colour, width=0.5, alpha=0.3):
     return violin
 
 
-def annotate_example_subplot(col, ax):
-    ax.annotate("Prior", xy=(5.7, 0.6), fontsize=11, color=col, va="top", ha="right")
-    ax.annotate(
-        "Post.",
-        xy=(5.8, 0.6),
-        fontsize=11,
-        color=col,
-        va="top",
-        ha="left",
-        weight="bold",
-    )
-    ax.annotate("95%", xy=(5.55, 6.31), fontsize=11, color=col)
-    ax.annotate("95%", xy=(5.8, 3.9), fontsize=11, color=col, weight="bold")
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_xlim(5.4, 6.15)
-    ax.set_ylim(-0.5, 7.4)
-
-
 def main() -> None:
     if len(sys.argv) > 1:
         output_path = Path(sys.argv[1])
@@ -187,31 +165,9 @@ def main() -> None:
     # ========
     # Plotting
     print("  Plotting...")
-    fg, axs = plt.subplot_mosaic(MOSAIC, figsize=(7, 10), gridspec_kw={"wspace": 0.7})
+    fg, axs = plt.subplot_mosaic(MOSAIC, figsize=(7, 10), gridspec_kw={"wspace": 0.2})
 
     for system, ax in axs.items():
-        if system == "Example":
-            eg_col = "#333333"
-            eg_prior_samples = prior_samples["HD 215152"]["HD 215152 b"]
-            eg_posterior_samples = posterior_samples["HD 215152"]["HD 215152 b"]
-            eg_planet_obs = system_obses["HD 215152"].planet_observations[0]
-
-            # Plot the violin of HD 215152 b as an example
-            make_violin(
-                eg_prior_samples, eg_planet_obs, "low", ax, eg_col, width=0.5, alpha=0.2
-            )
-            make_violin(
-                eg_posterior_samples,
-                eg_planet_obs,
-                "high",
-                ax,
-                eg_col,
-                width=0.5,
-                alpha=0.4,
-            )
-            annotate_example_subplot(eg_col, ax)
-            continue
-
         print(f"   Plotting {system}...")
         for planet_obs in system_obses[system].planet_observations:
             colour = COLOURS.get(planet_obs.name[-1], "k")
@@ -242,10 +198,8 @@ def main() -> None:
             )
 
         title = system if system != "Barnard's star" else "Barnard's Star"
-        if title == "HD 215152":
+        if title == "HD 158259" or title == "HD 215152":
             x, y = 0.025, 0.78
-        elif title == "HD 158259":
-            x, y = 0.04, 0.78
         else:
             x, y = 0.055, 0.78
         ax.set_title(title, fontsize=14, x=x, y=y, horizontalalignment="left")
@@ -258,7 +212,6 @@ def main() -> None:
     axs["HD 215152"].set_ylim(0.0, 11.0)
     axs["HD 184010"].set_xlim(140, 980)
     axs["Barnard's star"].set_ylim(0.0, 1.4)
-    # axs["Barnard's star"].set_xticks([0, 1], labels=["0", "1"])
     axs["YZ Cet"].set_ylim(0.0, 3.91)
 
     fg.supxlabel("Period [d]", fontsize=16, y=0.045)

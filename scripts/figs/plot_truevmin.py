@@ -35,24 +35,27 @@ def main() -> None:
         print("Usage: python plot_truevmin.py <figure_path>")
         sys.exit(1)
 
-    fg, ax = plt.subplots(figsize=(6, 2.5))
+    fg, ax = plt.subplots(figsize=(3.3, 1.5))
     masses = np.linspace(0.001, 3, 100)
-    ax.plot(masses, prior_mmin(masses), c="k", ls="--", lw=2)
-    ax.plot(masses, prior_mtrue(masses), c="k", lw=2)
+    ax.plot(masses, prior_mmin(masses), c="k", ls="--")
+    ax.plot(masses, prior_mtrue(masses), c="k")
 
-    ax.set_xlabel("Mass [arbitrary]", fontsize=14)
+    ax.set_xlabel("Mass [arbitrary]", fontsize=9)
     ax.set_xlim(0, np.max(masses))
     ax.set_xticks([0, 1, 2, 3])
+    ax.set_xticks([0.25, 0.5, 0.75, 1.25, 1.5, 1.75, 2.25, 2.5, 2.75], minor=True)
     ax.set_yticks([])
-    ax.set_ylabel("Prob. density", fontsize=14)
+    ax.set_ylabel("Prob. density", fontsize=9)
     ax.set_ylim(0, ax.get_ylim()[1])
 
     for spine in ["left", "right", "top", "bottom"]:
-        ax.spines[spine].set_linewidth(1.5)
-    ax.tick_params(axis="x", length=7, labelsize=14, direction="in", width=1.5)
+        ax.spines[spine].set_linewidth(1)
+    ax.tick_params(axis="x", labelsize=8, direction="in", which="both", width=1)
+    ax.tick_params(length=4, which="major")
+    ax.tick_params(length=2, which="minor")
 
-    ax.annotate("$\\Pr(M_{\\rm min})$", xy=(0.25, 1.6), fontsize=16)
-    ax.annotate("$\\Pr(M)$", xy=(1.8, 0.4), fontsize=16)
+    ax.annotate("$\\Pr(M_{\\rm min})$", xy=(1.2, 1.65), fontsize=10)
+    ax.annotate("$\\Pr(M)$", xy=(1.8, 0.35), fontsize=10)
 
     figure_path.parent.mkdir(parents=True, exist_ok=True)
     fg.savefig(figure_path, dpi=300, bbox_inches="tight")

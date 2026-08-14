@@ -42,7 +42,7 @@ def main() -> None:
         label_kwargs={"fontsize": 18},
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    fg.savefig(output_path, bbox_inches="tight", dpi=300)
+    fg.savefig(output_path, bbox_inches="tight", dpi=100)
 
 
 if __name__ == "__main__":

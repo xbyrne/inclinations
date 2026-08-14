@@ -33,7 +33,7 @@ def label_planets(ax):
     ax.annotate("c", (6.5, 1.7), fontsize=14, c="g")
     ax.annotate("d", (10, 1.7), fontsize=14, c="b")
     ax.annotate("e", (24.5, 2.2), fontsize=14, c="c")
-    ax.annotate("$\\~{\\rm f}$", (18, 5.5), fontsize=18, c="k", ha="center")
+    ax.annotate("$\\~{\\rm f}$", (18, 5.3), fontsize=18, c="k", ha="center")
 
 
 def detection_threshold(P, reference_msini, reference_period):
@@ -73,7 +73,7 @@ def main() -> None:
     fl = np.load(RESULTS_FILE)
     samples = fl["samples"]
 
-    fg, ax = plt.subplots(figsize=(8, 2.5))
+    fg, ax = plt.subplots(figsize=(7, 2.5))
 
     COLOURS = ["r", "g", "b", "c", "k"]
     THIN = 50
@@ -105,8 +105,14 @@ def main() -> None:
     # Aesthetics
     ax.set_xlim(X_MIN, X_MAX)
     ax.set_ylim(0, 6.8)
+    ax.set_xticks([5, 10, 15, 20, 25])
+    ax.set_xticks(np.arange(4, 28, 1), minor=True)
+    ax.set_yticks([0, 2, 4, 6])
+    ax.set_yticks(np.arange(0, 7, 1), minor=True)
 
-    ax.tick_params(axis="both", which="both", direction="in", labelsize=12, length=5)
+    ax.tick_params(axis="both", which="both", direction="in", labelsize=12, width=1)
+    ax.tick_params(length=6, which="major")
+    ax.tick_params(length=3, which="minor")
 
     ax.set_xlabel("Period [d]", fontsize=14)
     ax.set_ylabel("$M_{\\rm min}$ [$M_\\oplus$]", fontsize=14)
