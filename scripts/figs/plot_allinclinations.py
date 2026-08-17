@@ -14,14 +14,7 @@ from cinemas import dataloading
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 
-SYSTEMS = [
-    "HD 158259",
-    "HD 215152",
-    "Barnard's star",
-    "HD 184010",
-    "HD 28471",
-    "YZ Cet",
-]
+SYSTEMS = ["HD 215152", "Barnard's star", "HD 184010", "HD 28471"]
 
 
 def main() -> None:
@@ -40,6 +33,10 @@ def main() -> None:
         catalogue
     )
     compact_multiplanet_rv_systems.sort_values(by="hostname", inplace=True)
+    # Remove YZ Cet, already plotted
+    compact_multiplanet_rv_systems = compact_multiplanet_rv_systems[
+        compact_multiplanet_rv_systems["hostname"] != "YZ Cet"
+    ]
 
     # Collect inclination samples
     results_path = ROOT_DIR / "results" / "mcmc_results"
@@ -59,12 +56,12 @@ def main() -> None:
     # ========
     # Plotting
     fg, axs = plt.subplots(
-        3, 2, figsize=(3.3, 4), gridspec_kw={"hspace": 0.0, "wspace": 0.0}
+        2, 2, figsize=(3.3, 3), gridspec_kw={"hspace": 0.0, "wspace": 0.0}
     )
     x = np.linspace(0, 90, 100)
     for system, ax in zip(SYSTEMS, axs.flatten()):
         display_name = system if system != "Barnard's star" else "Barnard's Star"
-        ax.set_title(display_name, fontsize=9, x=0.055, y=0.73, ha='left')
+        ax.set_title(display_name, fontsize=9, x=0.055, y=0.75, ha="left")
 
         for spine in ax.spines.values():
             spine.set_linewidth(1)
@@ -90,7 +87,7 @@ def main() -> None:
         ax.tick_params(length=2, which="minor")
 
     ax = axs[0, 0]
-    ax.annotate("Prior", xy=(15, 0.007), fontsize=9, rotation=33)
+    ax.annotate("Prior", xy=(15, 0.0075), fontsize=9, rotation=38)
     ax.annotate("Posterior", xy=(47, 0.004), fontsize=9)
 
     fg.supxlabel("$i$ [deg]", fontsize=10, y=0.02)

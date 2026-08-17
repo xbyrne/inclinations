@@ -177,7 +177,7 @@ def format_mass_limits_table(m95_df: pd.DataFrame) -> str:
     )
 
     for planet in m95_df["pl_name"].unique():
-        if len(planet) > 1 and planet != "HD 158259 b":
+        if len(planet) > 1 and planet != "HD 215152 b":
             m95_latex = m95_latex.replace(planet, f"\\hline\n{planet}")
 
     return (
@@ -195,14 +195,7 @@ def main() -> None:
     )
 
     catalogue = load_catalogue()
-    SYSTEMS = [
-        "HD 158259",
-        "HD 215152",
-        "Barnard's star",
-        "HD 184010",
-        "HD 28471",
-        "YZ Cet",
-    ]
+    SYSTEMS = ["HD 215152", "Barnard's star", "HD 184010", "HD 28471", "YZ Cet"]
     results_dir = ROOT_DIR / "results" / "mcmc_results"
 
     true_mass_prior_95s, true_mass_posterior_95s = collect_mass_limit_maps(

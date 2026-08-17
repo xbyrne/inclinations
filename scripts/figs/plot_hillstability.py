@@ -11,19 +11,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.legend_handler import HandlerBase
 
 M_SUN = 1.989e30  # kg
 M_EARTH = 5.972e24  # kg
 ROOT_DIR = Path(__file__).resolve().parents[2]
 
-SYSTEMS = [
-    "HD 158259",
-    "HD 215152",
-    "Barnard's star",
-    "HD 184010",
-    "HD 28471",
-    "YZ Cet",
-]
+SYSTEMS = ["Barnard's star", "YZ Cet", "HD 28471", "HD 184010", "HD 215152"]
 
 DELTA_CRIT = 10
 
@@ -60,6 +54,22 @@ def collect_inclinations_5pc():
     return inclinations_5pc
 
 
+class VerticalLineHandler(HandlerBase):
+    def create_artists(
+        self, legend, handle, xdescent, ydescent, width, height, fontsize, trans
+    ):
+        x = width / 2
+        return [
+            plt.Line2D(
+                [x, x],
+                [-ydescent, height - ydescent],
+                color=handle.get_color(),
+                linestyle=handle.get_linestyle(),
+                transform=trans,
+            )
+        ]
+
+
 def main():
     if len(sys.argv) > 1:
         output_path = Path(sys.argv[1])
@@ -86,17 +96,19 @@ def main():
     i_deg = np.linspace(0, 90, 1000)
     sini_1_3 = np.sin(np.radians(i_deg)) ** (1 / 3)
     Y_MAX = 24
-    TITLES = [
-        "HD 158259",
-        "HD 215152",
-        "Barnard's Star",
-        "HD 184010",
-        "HD 28471",
-        "YZ Ceti",
-    ]
+    TITLES = ["Barnard's Star", "YZ Cet", "HD 28471", "HD 184010", "HD 215152"]
     TITLE_DICT = dict(zip(SYSTEMS, TITLES))
-    for i, system in enumerate(SYSTEMS):
+
+    for i in range(6):
         ax = axs.flatten()[i]
+        if i == 3:
+            ax.axis("off")
+
+            continue
+        else:
+            system = SYSTEMS[i if i < 3 else i - 1]
+            title = TITLE_DICT[system]
+
         system_data = planets_data[planets_data["hostname"] == system]
 
         m_star = system_data["st_mass"].values[0] * M_SUN
@@ -119,7 +131,7 @@ def main():
         closest_planets = "".join(
             [system_data.iloc[p].pl_name[-1] for p in list(closest_pair)]
         )
-        title = TITLE_DICT[system] + "\n" + f"$\\Delta_{{\\rm {closest_planets}}}$"
+        title_text = f"{title}\n$\\Delta_{{\\rm {closest_planets}}}$"
 
         ax.plot(i_deg, delta_min * sini_1_3, color="k", lw=1)
 
@@ -134,10 +146,9 @@ def main():
         ax.fill_between(i_deg, 0, 10, color="r", alpha=0.2)
 
         inclination_limit = inclinations_5pc[system]
-        if "158259" not in system:
-            ax.vlines(inclination_limit, 8, 12, color="k", lw=1, alpha=0.5)
+        ax.vlines(inclination_limit, 8, 12, color="k", lw=1, alpha=0.5)
 
-        ax.set_title(title, fontsize=9, ha="left", va="top", x=0.06, y=0.84)
+        ax.set_title(title_text, fontsize=9, ha="left", va="top", x=0.06, y=0.84)
 
     axs[-1, 0].set_xticks([0, 30, 60, 90], labels=["0", "30", "60", ""], fontsize=8)
     axs[-1, 1].set_xticks([0, 30, 60, 90], labels=["0", "30", "60", "90"], fontsize=8)
@@ -145,9 +156,7 @@ def main():
         ax.set_yticklabels([])
 
     for ax in axs.flatten():
-        ax.tick_params(
-            labelsize=8, direction="in", top=True, right=True, which="both"
-        )
+        ax.tick_params(labelsize=8, direction="in", top=True, right=True, which="both")
         ax.tick_params(length=3, which="major")
         ax.tick_params(length=1.5, which="minor")
 
@@ -157,15 +166,25 @@ def main():
         "$\\Delta < 10$", (50, 5), fontsize=9, color="r", alpha=0.7, va="center"
     )
 
-    # Label posterior (on HD 158259)
-    ax.vlines(inclinations_5pc["HD 158259"], 8, 15, color="k", lw=1, alpha=0.5)
-    ax.annotate("5% posterior", (37, 14), fontsize=8, ha="left", color="k", alpha=0.7)
     # Label prior on HD 28471
-    axs[-1, 0].vlines(
-        np.degrees(np.arccos(0.95)), 4.7, 12, color="k", ls=":", lw=1.0, alpha=0.5
+    axs[-2, 0].vlines(
+        np.degrees(np.arccos(0.95)), 8, 12, color="k", ls=":", lw=1.0, alpha=0.5
     )
-    axs[-1, 0].annotate(
-        "5% prior", (21.0, 4), fontsize=8, ha="left", color="k", alpha=0.7
+
+    # Add legend to blank plot
+
+    legend_handles = [
+        plt.Line2D([0], [0], linewidth=0.5, c="grey", ls=":", label="5% prior"),
+        plt.Line2D([0], [0], linewidth=0.5, c="grey", ls="-", label="5% posterior"),
+    ]
+    axs[1, 1].legend(
+        handles=legend_handles,
+        fontsize=8,
+        loc="center",
+        handler_map={plt.Line2D: VerticalLineHandler()},
+        handlelength=0.1,
+        handleheight=1.7,
+        labelspacing=1,
     )
 
     fg.supxlabel("$i$ [deg]", fontsize=11, y=0.02)

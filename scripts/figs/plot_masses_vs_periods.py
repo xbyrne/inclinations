@@ -15,21 +15,9 @@ import pandas as pd
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 
-SYSTEMS = [
-    "HD 158259",
-    "Barnard's star",
-    "HD 215152",
-    "HD 184010",
-    "HD 28471",
-    "YZ Cet",
-]
+SYSTEMS = ["Barnard's star", "HD 215152", "HD 184010", "HD 28471", "YZ Cet"]
 
-MOSAIC = [
-    ["HD 158259"] * 2,
-    ["HD 215152"] * 2,
-    ["Barnard's star", "HD 184010"],
-    ["HD 28471", "YZ Cet"],
-]
+MOSAIC = [["HD 215152"] * 2, ["Barnard's star", "HD 184010"], ["HD 28471", "YZ Cet"]]
 
 COLOURS = {"b": "r", "c": "g", "d": "b", "e": "m", "f": "c"}
 
@@ -165,7 +153,7 @@ def main() -> None:
     # ========
     # Plotting
     print("  Plotting...")
-    fg, axs = plt.subplot_mosaic(MOSAIC, figsize=(7, 10), gridspec_kw={"wspace": 0.2})
+    fg, axs = plt.subplot_mosaic(MOSAIC, figsize=(7, 8), gridspec_kw={"wspace": 0.2})
 
     for system, ax in axs.items():
         print(f"   Plotting {system}...")
@@ -198,16 +186,15 @@ def main() -> None:
             )
 
         title = system if system != "Barnard's star" else "Barnard's Star"
-        if title == "HD 158259" or title == "HD 215152":
-            x, y = 0.025, 0.78
+        if title == "HD 215152":
+            x, y = 0.025, 0.8
         else:
-            x, y = 0.055, 0.78
+            x, y = 0.054, 0.8
         ax.set_title(title, fontsize=14, x=x, y=y, horizontalalignment="left")
 
         ax.tick_params(length=5, labelsize=11, width=1, direction="in", right=True)
 
     # Axes tweaks
-    axs["HD 158259"].set_ylim(0.0, 23.5)
     axs["HD 215152"].set_xlim(3.5, 27)
     axs["HD 215152"].set_ylim(0.0, 11.0)
     axs["HD 184010"].set_xlim(140, 980)
@@ -215,7 +202,7 @@ def main() -> None:
     axs["YZ Cet"].set_ylim(0.0, 3.91)
 
     fg.supxlabel("Period [d]", fontsize=16, y=0.045)
-    fg.supylabel("True Mass [M$_{\\oplus}$]", fontsize=16, x=0)
+    fg.supylabel("True Mass [M$_{\\oplus}$]", fontsize=16, x=0.03)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fg.savefig(output_path, bbox_inches="tight", dpi=300)
 

@@ -26,9 +26,18 @@ def load_catalogue() -> pd.DataFrame:
     return pd.read_csv(ROOT_DIR / "data" / "exoplanet_catalogue.csv")
 
 
-def filter_refuted_planets(catalogue: pd.DataFrame) -> pd.DataFrame:
+def filter_problematic_systems(catalogue: pd.DataFrame) -> pd.DataFrame:
+    # Remove planets which have been refuted
     refuted_planets = ["GJ 667 C f", "GJ 667 C e", "GJ 667 C g", "DMPP-1 e"]
-    return catalogue[~catalogue["pl_name"].isin(refuted_planets)].copy()
+    filtered_catalogue = catalogue[~catalogue["pl_name"].isin(refuted_planets)].copy()
+
+    # Remove HD 158259
+    # Planet b transits, but planets c--f do not.
+    # Its inclination is therefore already pretty well-constrained
+    filtered_catalogue = filtered_catalogue[
+        filtered_catalogue["hostname"] != "HD 158259"
+    ]
+    return filtered_catalogue
 
 
 def build_system_summary_df(catalogue: pd.DataFrame) -> pd.DataFrame:
@@ -104,7 +113,7 @@ def format_systems_table(systems_df: pd.DataFrame) -> str:
 
 
 def build_systems_table(catalogue: pd.DataFrame) -> str:
-    filtered_catalogue = filter_refuted_planets(catalogue)
+    filtered_catalogue = filter_problematic_systems(catalogue)
     systems_df = build_system_summary_df(filtered_catalogue)
     return format_systems_table(systems_df)
 
