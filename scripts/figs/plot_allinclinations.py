@@ -90,7 +90,7 @@ def main() -> None:
     ax.annotate("Prior", xy=(15, 0.0075), fontsize=9, rotation=38)
     ax.annotate("Posterior", xy=(47, 0.004), fontsize=9)
 
-    fg.supxlabel("$i$ [deg]", fontsize=10, y=0.02)
+    fg.supxlabel("$i$ [deg]", fontsize=10, y=-0.01)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fg.savefig(output_path, bbox_inches="tight", dpi=300)
 
