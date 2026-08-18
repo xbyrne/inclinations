@@ -21,6 +21,28 @@ MOSAIC = [["HD 215152"] * 2, ["Barnard's star", "HD 184010"], ["HD 28471", "YZ C
 
 COLOURS = {"b": "r", "c": "g", "d": "b", "e": "m", "f": "c"}
 
+XTICKS = {
+    "HD 215152": {"major": np.arange(5, 29, 5), "minor": np.arange(5, 28, 1)},
+    "Barnard's star": {"major": np.arange(2, 8, 1), "minor": np.arange(2, 8, 0.5)},
+    "HD 184010": {
+        "major": np.arange(200, 1100, 200),
+        "minor": np.arange(200, 950, 100),
+    },
+    "HD 28471": {"major": np.arange(2, 14, 2), "minor": np.arange(2, 13, 1)},
+    "YZ Cet": {"major": np.arange(1, 6, 1), "minor": np.arange(1, 5, 0.5)},
+}
+
+YTICKS = {
+    "HD 215152": {"major": np.arange(0, 11, 2), "minor": np.arange(0, 10, 1)},
+    "Barnard's star": {
+        "major": np.arange(0, 1.5, 0.5),
+        "minor": np.arange(0, 1.5, 0.1),
+    },
+    "HD 184010": {"major": np.arange(100, 500, 100), "minor": np.arange(50, 500, 50)},
+    "HD 28471": {"major": np.arange(5, 20, 5), "minor": np.arange(2, 19, 1)},
+    "YZ Cet": {"major": np.arange(1, 4, 1), "minor": np.arange(0.5, 4, 0.5)},
+}
+
 
 def truncate_samples(samples):
     """Truncate samples between 5th and 95th percentiles."""
@@ -192,6 +214,15 @@ def main() -> None:
             x, y = 0.054, 0.8
         ax.set_title(title, fontsize=14, x=x, y=y, horizontalalignment="left")
 
+        # Ticks
+        ax.set_xticks(XTICKS[system]["major"])
+        ax.set_xticks(XTICKS[system]["minor"], minor=True)
+        ax.set_yticks(YTICKS[system]["major"])
+        ax.set_yticks(YTICKS[system]["minor"], minor=True)
+
+        ax.tick_params(labelsize=11, width=1, direction="in", right=True, which="both")
+        ax.tick_params(which="major", length=5, axis="both")
+        ax.tick_params(which="minor", length=2.5, axis="both")
         ax.tick_params(length=5, labelsize=11, width=1, direction="in", right=True)
 
     # Axes tweaks
