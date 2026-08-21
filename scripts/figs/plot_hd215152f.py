@@ -1,7 +1,7 @@
 """
 plot_hd215152f.py
 =================
-Plots the HD 215152 f search figure using the 50x-thinned samples cell.
+Plots the HD 215152 f search figure.
 """
 
 import sys
@@ -17,13 +17,7 @@ RESULTS_FILE = ROOT_DIR / "results" / "search_hd215152f" / "hd215152f.npz"
 
 def plot_prior(ax):
     ax.vlines(x=[12, 24], ymin=0, ymax=5.0, color="k", linestyle="--")
-    ax.hlines(
-        y=5.0,
-        xmin=12,
-        xmax=24,
-        color="k",
-        linestyle="--",
-    )
+    ax.hlines(y=5.0, xmin=12, xmax=24, color="k", linestyle="--")
 
     ax.annotate("Prior", (24, 5.25), fontsize=12, ha="right")
 

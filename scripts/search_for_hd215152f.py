@@ -1,7 +1,7 @@
 """
 search_for_hd215152f.py
 ========================
-Using CINEMAS to get posterior distributions on an undetected_planet in the HD 215152
+Using CINEMAS to get posterior distributions on an undetected planet in the HD 215152
 system.
 """
 
