@@ -1,0 +1,1 @@
+The MCMC posterior samples for (a) the inclinations of the five systems investigated in [Byrne & Bonsor 2026](https://arxiv.org/abs/2608.26880), as well as for the hypothetical planet HD 215152 f, can be found at the zenodo link [here](https://zenodo.org/records/22139567)

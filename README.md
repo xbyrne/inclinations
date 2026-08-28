@@ -7,6 +7,8 @@ RV observations of exoplanets only give minimum masses. However, in compact syst
 
 This work makes use of stability likelihoods from [`SPOCK`](https://github.com/dtamayo/spock) to constrain the inclination -- and hence true masses -- of planets in compact RV systems. Our Bayesian framework has been named CINEMAS (Constraining INclinations of Exoplanets and their MAsses by Stability); a dedicated python package, `cinemas`, is available [here](https://github.com/xbyrne/cinemas), and on `pip`.
 
+This work is published in [Byrne & Bonsor 2026](https://arxiv.org/abs/2608.26880).
+
 
 ## Scripts
 
